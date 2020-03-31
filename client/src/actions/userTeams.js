@@ -1,5 +1,5 @@
 import axios from "axios";
-import { GET_ERRORS, SET_CURRENT_USER, USER_LOADING } from "./types";
+import { GET_ERRORS } from "./types";
 
 // Campaigns - get campaigns of a team
 export const getTeams = userData => dispatch => {

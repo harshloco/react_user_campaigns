@@ -41,11 +41,8 @@ router.post("/login", (req, res) => {
       return res.status(404).json({ emailnotfound: "Email not found" });
     }
 
-    console.log(
-      "user.mobile_phone : " + user.mobile_phone + " password " + password
-    );
     // Check password
-    // bcrypt.compare(password, user.password).then(isMatch => {
+
     if (password === user.mobile_phone) {
       // User matched
       const team_ids = [];
@@ -60,11 +57,11 @@ router.post("/login", (req, res) => {
         payload,
         keys.secretOrKey,
         {
-          expiresIn: 31556926 // 1 year in seconds
+          expiresIn: 600 // 10 minutes in seconds
         },
         (err, token) => {
-          console.log("token " + token);
-          res.json({
+          //console.log("token " + token);
+          res.status(200).json({
             success: true,
             token: "Bearer " + token
           });
@@ -73,7 +70,6 @@ router.post("/login", (req, res) => {
     } else {
       return res.status(400).json({ passwordincorrect: "Password incorrect" });
     }
-    //});
   });
 });
 
@@ -82,25 +78,17 @@ router.post("/login", (req, res) => {
 // @access Public
 router.post("/getTeamCampaigns", (req, res) => {
   const campaign_result = [];
+
   processEachTeam(req);
   async function processEachTeam(req) {
-    console.log("Start");
-    // for (const item of req.body) {
-    //   campaign_result.push(await getTeamDetails(item.team_id));
-    //   //await console.log("team id is " + item.team_id);
-    // }
     const promises = req.body.map(async fruit => {
       const numFruit = await getTeamDetails(fruit.team_id);
       return numFruit;
     });
 
     campaign_result.push(await Promise.all(promises));
-    //campaign_result.push(numFruits);
-    //console.log(console.log(JSON.stringify(numFruits)));
-    console.log("End");
-    console.log("Done!" + JSON.stringify(campaign_result));
 
-    res.json({
+    res.status(200).json({
       success: true,
       result: campaign_result
     });
@@ -135,25 +123,11 @@ router.post("/getTeamCampaigns", (req, res) => {
         ],
         function(err, result) {
           if (err) throw err;
-          console.log("new result :" + JSON.stringify(result));
+          //console.log("new result :" + JSON.stringify(result));
           return result;
-          // data.push(result);
-          // console.log("new result :" + JSON.stringify(data));
         }
       )
     ];
-
-    // await Team.findOne({ id: team_id }).then(team => {
-    //   console.log("team id " + team.id + " team name " + team.name);
-
-    //   processCampaigns(team.id);
-    //   async function processCampaigns(team_id) {
-    //     data.push({ team_id: team.id, team_name: team.name });
-    //     data.push(await getCampaignDetails(team_id));
-    //     console.log(" getCampaignDetails for team id is " + team_id);
-    //     //await console.log("team id is " + item.team_id);
-    //   }
-    // });
 
     return data;
   }
@@ -162,21 +136,11 @@ router.post("/getTeamCampaigns", (req, res) => {
 router.post("/getTeams", (req, res) => {
   const team_ids = [];
 
-  console.log("get teams for user id " + req.body.user_id);
   Membership.find({ user_id: req.body.user_id }).then(results => {
     results.forEach((result, memberIndex) => {
-      if (!result) {
-        //  return res
-        //    .status(404)
-        //    .json({ teamsnotfound: "Teams not found" });
-        // Create JWT Payload
-      }
-      console.log("result : " + result + " team_id " + result.team_id);
-      //console.log("member index : " + memberIndex);
-
       team_ids.push({ team_id: result.team_id });
     });
-    res.json({
+    res.status(200).json({
       success: true,
       result: team_ids
     });
